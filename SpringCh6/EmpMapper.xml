@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.myapp.hr.dao.IEmpRepository">
+	<select id="getEmpCount" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM employees
+		<if test="deptid != null">
+			WHERE department_id=#{deptid}
+		</if>
+	</select>
+	
+	<resultMap type="com.example.myapp.hr.model.EmpVO" id="empMap">
+		<result column="employee_id" property="employeeId"/>
+		<result column="first_name" property="firstName"/>
+		<result column="last_name" property="lastName"/>
+		<result column="email" property="email"/>
+		<result column="phone_number" property="phoneNumber"/>
+		<result column="hire_date" property="hireDate"/>
+		<result column="job_id" property="jobId"/>
+		<result column="salary" property="salary"/>
+		<result column="commission_pct" property="commissionPct"/>
+		<result column="manager_id" property="managerId"/>
+		<result column="department_id" property="departmentId"/>
+	</resultMap>
+	
+	<select id="getEmpList" resultMap="empMap">
+		SELECT * FROM employees
+	</select>
+	
+	
+	<select id="getEmpInfo" parameterType="int" resultType="com.example.myapp.hr.model.EmpVO">
+		SELECT employee_id as employeeId,
+		first_name as firstName,
+		last_name as lastName,
+		email as email,
+		phone_number as phoneNumber,
+		hire_date as hireDate,
+		job_id as jobId,
+		salary as salary,
+		commission_pct as commissionPct,
+		manager_id as managerId,
+		department_id as departmentId
+		from employees where employee_id=#{empid}
+	</select>
+	
+	<insert id="insertEmp" parameterType="com.example.myapp.hr.model.EmpVO">
+		insert into employees(employee_id, first_name, last_name, email, phone_number,
+		hire_date, job_id, salary, commission_pct, manager_id, department_id)
+		values
+		(#{employeeId}, #{firstName}, #{lastName}, #{email}, 
+		#{phoneNumber}, #{hireDate}, #{jobId}, #{salary}, 
+		#{commissionPct}, #{managerId}, #{departmentId})
+	</insert>
+	
+	<update id="updateEmp" parameterType="com.example.myapp.hr.model.EmpVO">
+		update employees
+		set first_name=#{firstName}, last_name=#{lastName}, email=#{email},
+		phone_number=#{phoneNumber}, hire_date=#{hireDate},
+		job_id=#{jobId}, salary=#{salary}, commission_pct=#{commissionPct},
+		manager_id=#{managerId}, department_id=#{departmentId}
+		where employee_id=#{employeeId}
+	</update>
+	
+	<delete id="deleteJobHistory" parameterType="int">
+		delete job_history where employee_id=#{empid}
+	</delete>
+	
+	<delete id="deleteEmp">
+		delete employees where employee_id=#{empid} and email=#{email}
+	</delete>
+	
+	<select id="getAllJobId" resultType="hashmap">
+		select job_id as "jobId", job_title as "jobTitle" from jobs
+	</select>
+	
+	<select id="getAllManagerId" resultType="hashmap">
+		select
+			d.manager_id as "managerId",
+			e.first_name as "firstName"
+		from departments d join employees e
+			on d.manager_id = e.employee_id
+		order by d.manager_id
+	</select>
+	
+	<select id="getAllDeptId" resultType="hashmap">
+		select
+			department_id as "departmentId",
+			department_name as  "departmentName"
+		from departments
+	</select>
+	
+</mapper>
